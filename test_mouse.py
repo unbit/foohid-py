@@ -35,7 +35,7 @@ try:
     foohid.destroy("FooHID simple mouse")
 except:
     pass
-foohid.create("FooHID simple mouse", struct.pack('{0}B'.format(len(mouse)), *mouse))
+foohid.create("FooHID simple mouse", struct.pack('{0}B'.format(len(mouse)), *mouse), "SN 123456", 2, 3)
 
 while True:
     x = random.randrange(0,255)

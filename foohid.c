@@ -33,14 +33,17 @@ static void foohid_close(io_connect_t conn) {
 static PyObject *foohid_create(PyObject *self, PyObject *args) {
 	char *name;
 	Py_ssize_t name_len;
-	char *descriptor;
-	Py_ssize_t descriptor_len;
+    char *descriptor;
+    Py_ssize_t descriptor_len;
+    char *serial;
+    Py_ssize_t serial_len;
+    ushort vid, pid;
 
-	if (!PyArg_ParseTuple(args, "s#s#", &name, &name_len, &descriptor, &descriptor_len)) {
+	if (!PyArg_ParseTuple(args, "s#s#s#HH", &name, &name_len, &descriptor, &descriptor_len, &serial, &serial_len, &vid, &pid)) {
                 return NULL;
         }
 
-	if (name_len == 0 || descriptor_len == 0) {
+	if (name_len == 0 || descriptor_len == 0 || serial_len == 0) {
 		return PyErr_Format(PyExc_ValueError, "invalid values");
 	}
 
@@ -49,19 +52,20 @@ static PyObject *foohid_create(PyObject *self, PyObject *args) {
 		return PyErr_Format(PyExc_SystemError, "unable to open " FOOHID_SERVICE " service");
 	}
 
-	uint32_t output_count = 1;
-        uint64_t output = 0;
-
-	uint64_t input[4];
+	uint64_t input[8];
 	input[0] = (uint64_t) name;
 	input[1] = (uint64_t) name_len;
-	input[2] = (uint64_t) descriptor;
-	input[3] = (uint64_t) descriptor_len;
+    input[2] = (uint64_t) descriptor;
+    input[3] = (uint64_t) descriptor_len;
+    input[4] = (uint64_t) serial;
+    input[5] = (uint64_t) serial_len;
+    input[6] = (uint64_t) vid;
+    input[7] = (uint64_t) pid;
 
-	kern_return_t ret = IOConnectCallScalarMethod(conn, FOOHID_CREATE, input, 4, &output, &output_count);
+	kern_return_t ret = IOConnectCallScalarMethod(conn, FOOHID_CREATE, input, 8, NULL, 0);
 	foohid_close(conn);
 
-	if (ret != KERN_SUCCESS || output != 0) {
+	if (ret != KERN_SUCCESS) {
 		return PyErr_Format(PyExc_SystemError, "unable to create device");
 	}
 
@@ -88,19 +92,16 @@ static PyObject *foohid_send(PyObject *self, PyObject *args) {
                 return PyErr_Format(PyExc_SystemError, "unable to open " FOOHID_SERVICE " service");
         }
 
-        uint32_t output_count = 1;
-        uint64_t output = 0;
-
         uint64_t input[4];
         input[0] = (uint64_t) name;
         input[1] = (uint64_t) name_len;
         input[2] = (uint64_t) descriptor;
         input[3] = (uint64_t) descriptor_len;
 
-        kern_return_t ret = IOConnectCallScalarMethod(conn, FOOHID_SEND, input, 4, &output, &output_count);
+        kern_return_t ret = IOConnectCallScalarMethod(conn, FOOHID_SEND, input, 4, NULL, 0);
         foohid_close(conn);
 
-        if (ret != KERN_SUCCESS || output != 0) {
+        if (ret != KERN_SUCCESS) {
                 return PyErr_Format(PyExc_SystemError, "unable to send hid message");
         }
 
@@ -125,17 +126,14 @@ static PyObject *foohid_destroy(PyObject *self, PyObject *args) {
                 return PyErr_Format(PyExc_SystemError, "unable to open " FOOHID_SERVICE " service");
         }
 
-        uint32_t output_count = 1;
-        uint64_t output = 0;
-
         uint64_t input[2];
         input[0] = (uint64_t) name;
         input[1] = (uint64_t) name_len;
 
-        kern_return_t ret = IOConnectCallScalarMethod(conn, FOOHID_DESTROY, input, 2, &output, &output_count);
+        kern_return_t ret = IOConnectCallScalarMethod(conn, FOOHID_DESTROY, input, 2, NULL, 0);
         foohid_close(conn);
 
-        if (ret != KERN_SUCCESS || output != 0) {
+        if (ret != KERN_SUCCESS) {
                 return PyErr_Format(PyExc_SystemError, "unable to destroy hid device");
         }
 
