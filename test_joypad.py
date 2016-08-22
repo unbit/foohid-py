@@ -33,7 +33,7 @@ try:
     foohid.destroy("FooHID simple joypad")
 except:
     pass
-foohid.create("FooHID simple joypad", struct.pack('{0}B'.format(len(joypad)), *joypad))
+foohid.create("FooHID simple joypad", struct.pack('{0}B'.format(len(joypad)), *joypad), "SN 123456", 2, 3)
 
 while True:
     x = random.randrange(0,255)
