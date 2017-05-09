@@ -2,43 +2,53 @@ import foohid
 import struct
 import random
 import time
-    
+
+device_name = "FooHID simple mouse"
+device_serial = "SN 123"
+vendor_id = 0x1234
+product_id = 0x4321
+
 mouse = (
     0x05, 0x01,
-    0x09, 0x02,                    
-    0xa1, 0x01,                    
-    0x09, 0x01,                    
-    0xa1, 0x00,                    
-    0x05, 0x09,                    
-    0x19, 0x01,                    
-    0x29, 0x03,                    
-    0x15, 0x00,                    
-    0x25, 0x01,                    
-    0x95, 0x03,                    
-    0x75, 0x01,                    
-    0x81, 0x02,                    
-    0x95, 0x01,                    
-    0x75, 0x05,                    
-    0x81, 0x03,                    
-    0x05, 0x01,                    
-    0x09, 0x30,                    
-    0x09, 0x31,                    
-    0x15, 0x81,                    
-    0x25, 0x7f,                    
-    0x75, 0x08,                    
-    0x95, 0x02,                    
-    0x81, 0x06,                    
-    0xc0,                          
+    0x09, 0x02,
+    0xa1, 0x01,
+    0x09, 0x01,
+    0xa1, 0x00,
+    0x05, 0x09,
+    0x19, 0x01,
+    0x29, 0x03,
+    0x15, 0x00,
+    0x25, 0x01,
+    0x95, 0x03,
+    0x75, 0x01,
+    0x81, 0x02,
+    0x95, 0x01,
+    0x75, 0x05,
+    0x81, 0x03,
+    0x05, 0x01,
+    0x09, 0x30,
+    0x09, 0x31,
+    0x15, 0x81,
+    0x25, 0x7f,
+    0x75, 0x08,
+    0x95, 0x02,
+    0x81, 0x06,
+    0xc0,
     0xc0)
 
+mouse_str = ''.join(chr(x) for x in mouse)
+
 try:
-    foohid.destroy("FooHID simple mouse")
+    foohid.destroy(device_name)
 except:
     pass
-foohid.create("FooHID simple mouse", struct.pack('{0}B'.format(len(mouse)), *mouse))
+foohid.create(device_name, mouse_str, device_serial, vendor_id, product_id)
 
-while True:
-    x = random.randrange(0,255)
-    y = random.randrange(0,255)
-    foohid.send("FooHID simple mouse", struct.pack('3B', 0, x, y))
-    time.sleep(1)
+try:
+    while True:
+        x = random.randrange(0, 255)
+        y = random.randrange(0, 255)
+        foohid.send(device_name, struct.pack('3B', 0, x, y))
+        time.sleep(1)
+except KeyboardInterrupt:
+    foohid.destroy(device_name)

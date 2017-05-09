@@ -3,6 +3,11 @@ import struct
 import random
 import time
 
+device_name = "FooHID simple joypad"
+device_serial = "SN 123"
+vendor_id = 0x1234
+product_id = 0x4321
+
 joypad = (
     0x05, 0x01,
     0x09, 0x05,
@@ -29,16 +34,21 @@ joypad = (
     0xc0,
     0xc0)
 
+joypad_str = ''.join(chr(x) for x in joypad)
+
 try:
-    foohid.destroy("FooHID simple joypad")
+    foohid.destroy(device_name)
 except:
     pass
-foohid.create("FooHID simple joypad", struct.pack('{0}B'.format(len(joypad)), *joypad))
+foohid.create(device_name, joypad_str, device_serial, vendor_id, product_id)
 
-while True:
-    x = random.randrange(0,255)
-    y = random.randrange(0,255)
-    z = random.randrange(0,255)
-    rx = random.randrange(0,255)
-    foohid.send("FooHID simple joypad", struct.pack('H4B', 0, x, y, z, rx))
-    time.sleep(1)
+try:
+    while True:
+        x = random.randrange(0, 255)
+        y = random.randrange(0, 255)
+        z = random.randrange(0, 255)
+        rx = random.randrange(0, 255)
+        foohid.send(device_name, struct.pack('H4B', 0, x, y, z, rx))
+        time.sleep(1)
+except KeyboardInterrupt:
+    foohid.destroy(device_name)
