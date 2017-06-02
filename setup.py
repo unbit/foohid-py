@@ -5,6 +5,6 @@ module1 = Extension('foohid',
                     extra_link_args = ['-framework', 'IOKit'])
 
 setup (name = 'foohid',
-       version = '0.1',
+       version = '0.2',
        description = 'osx foohid iokit driver python wrapper',
        ext_modules = [module1])
