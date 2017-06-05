@@ -33,12 +33,15 @@ try:
     foohid.destroy("FooHID simple joypad")
 except:
     pass
-foohid.create("FooHID simple joypad", struct.pack('{0}B'.format(len(joypad)), *joypad))
+foohid.create("FooHID simple joypad", struct.pack('{0}B'.format(len(joypad)), *joypad), "SN 123", 2, 3)
 
-while True:
-    x = random.randrange(0,255)
-    y = random.randrange(0,255)
-    z = random.randrange(0,255)
-    rx = random.randrange(0,255)
-    foohid.send("FooHID simple joypad", struct.pack('H4B', 0, x, y, z, rx))
-    time.sleep(1)
+try:
+    while True:
+        x = random.randrange(0,255)
+        y = random.randrange(0,255)
+        z = random.randrange(0,255)
+        rx = random.randrange(0,255)
+        foohid.send("FooHID simple joypad", struct.pack('H4B', 0, x, y, z, rx))
+        time.sleep(1)
+except KeyboardInterrupt:
+    foohid.destroy("FooHID simple joypad")
